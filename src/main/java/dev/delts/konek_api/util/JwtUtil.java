@@ -13,6 +13,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -23,14 +24,15 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, UUID userId) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, userDetails.getUsername(), userId);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    private String createToken(Map<String, Object> claims, String subject, UUID userId) {
         return Jwts.builder()
                 .setClaims(claims)
+                .claim("user_id", userId)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -45,6 +47,12 @@ public class JwtUtil {
 
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractUserId(String token) {
+        return extractAllClaims(token)
+                .get("user_id")
+                .toString();
     }
 
     public Date extractExpiration(String token) {
