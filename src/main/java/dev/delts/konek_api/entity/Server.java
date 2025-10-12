@@ -1,7 +1,9 @@
 package dev.delts.konek_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -28,5 +30,10 @@ public @Data class Server {
 
     @CreatedDate
     private Instant createdAt;
+
+    @UpdateTimestamp
+    private Instant updatedAt;
+
+    @JsonIgnore
     private Instant deletedAt;
 }

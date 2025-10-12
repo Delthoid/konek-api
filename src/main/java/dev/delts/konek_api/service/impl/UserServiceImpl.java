@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Service
@@ -82,10 +83,12 @@ public class UserServiceImpl implements UserService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword()));
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUserName());
-        final String token = jwtUtil.generateToken(userDetails);
+        AtomicReference<String> token = new AtomicReference<>();
 
         userRepository.findByUserName(userDetails.getUsername())
                 .ifPresent(user -> {
+                    token.set(jwtUtil.generateToken(userDetails, user.getId()));
+
                     userDtoResponse.setUserId(user.getId());
                     userDtoResponse.setUserName(user.getUserName());
                     userDtoResponse.setEmail(user.getEmail());
@@ -93,7 +96,7 @@ public class UserServiceImpl implements UserService {
                     userDtoResponse.setCreatedAt(user.getCreatedAt());
                 });
 
-        loginResponse.setToken(token);
+        loginResponse.setToken(token.get());
         loginResponse.setUserDtoResponse(userDtoResponse);
 
         return loginResponse;
