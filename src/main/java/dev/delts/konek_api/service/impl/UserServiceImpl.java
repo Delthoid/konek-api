@@ -7,7 +7,6 @@ import dev.delts.konek_api.dto.request.auth.SignUpRequest;
 import dev.delts.konek_api.entity.User;
 import dev.delts.konek_api.exception.RecordAlreadyExistsException;
 import dev.delts.konek_api.repository.UserRepository;
-import dev.delts.konek_api.service.CustomUserDetailsService;
 import dev.delts.konek_api.service.UserService;
 import dev.delts.konek_api.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
