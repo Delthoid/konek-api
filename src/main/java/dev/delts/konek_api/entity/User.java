@@ -1,5 +1,6 @@
 package dev.delts.konek_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,7 +24,8 @@ public @Data class User {
 
     @Column(nullable = false)
     private String email;
-    //TODO: Hashed password
+
+    @JsonIgnore
     private String password;
     private String avatarUrl;
 
