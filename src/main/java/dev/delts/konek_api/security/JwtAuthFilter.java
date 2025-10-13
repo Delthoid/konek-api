@@ -40,6 +40,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 userName = jwtUtil.extractUserName(jwt);
             } catch (Exception e) {
                 System.err.println("JWT parsing error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                throw e;
             }
         }
 

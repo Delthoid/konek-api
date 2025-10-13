@@ -21,7 +21,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    //TODO: Incorrect username and password isnt being returned by the API
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         dev.delts.konek_api.entity.User user = userRepository.findByUserName(username)
                 .orElseGet(() -> userRepository.findByEmail(username)

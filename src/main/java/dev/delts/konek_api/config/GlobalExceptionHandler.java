@@ -5,6 +5,7 @@ import dev.delts.konek_api.exception.RecordAlreadyExistsException;
 import dev.delts.konek_api.exception.RecordNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -65,6 +66,22 @@ public class GlobalExceptionHandler {
         errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
         errorResponse.setError("Resource not found");
         errorResponse.setMessage(ex.getMessage());
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<ErrorResponse> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimeStamp(LocalDateTime.now());
+        errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+        errorResponse.setError("Invalid login");
+
+        if (ex.getCause() instanceof RecordNotFoundException) {
+            errorResponse.setMessage(ex.getMessage());
+        }
+
         errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
