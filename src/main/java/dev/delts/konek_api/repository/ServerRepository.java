@@ -4,6 +4,7 @@ import dev.delts.konek_api.entity.Server;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +12,6 @@ import java.util.UUID;
 public interface ServerRepository extends JpaRepository<Server, UUID> {
     Optional<Server> findByNameAndOwnerId(String name, UUID userId);
     Optional<Server> findByIdAndOwnerId(UUID id, UUID userId);
+    List<Server> findByOwnerId(UUID userId);
+    List<Server> findByIdIn(List<UUID> ids);
 }

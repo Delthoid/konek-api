@@ -9,11 +9,9 @@ import dev.delts.konek_api.service.ServerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -43,4 +41,22 @@ public class ServerController {
 
         return ResponseEntity.ok(ApiResponse.success("Server updated successfully", updatedServer));
     }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse<?>> delete(@RequestParam UUID serverId, HttpServletRequest servletRequest) {
+        UUID userId = authService.getUserIdFromRequest(servletRequest);
+        serverService.delete(serverId, userId);
+
+        return ResponseEntity.ok(ApiResponse.success("Server deleted successfully"));
+    }
+
+    @GetMapping("/servers")
+    public ResponseEntity<ApiResponse<?>> getServers(@RequestParam(required = false) String query, HttpServletRequest servletRequest) {
+        UUID userId = authService.getUserIdFromRequest(servletRequest);
+
+        List<Server> serverList = serverService.findByUserId(userId);
+
+        return ResponseEntity.ok(ApiResponse.success(serverList));
+    }
+
 }

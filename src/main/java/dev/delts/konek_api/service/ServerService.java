@@ -4,6 +4,7 @@ import dev.delts.konek_api.dto.request.server.ServerCreateRequest;
 import dev.delts.konek_api.dto.request.server.ServerUpdateRequest;
 import dev.delts.konek_api.entity.Server;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +15,5 @@ public interface ServerService {
     void delete(UUID id, UUID userId);
 
     Optional<Server> findByNameAndOwnerId(String name, UUID ownerId);
+    List<Server> findByUserId(UUID userId);
 }

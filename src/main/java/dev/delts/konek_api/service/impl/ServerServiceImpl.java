@@ -10,6 +10,7 @@ import dev.delts.konek_api.service.ServerService;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,11 +74,27 @@ public class ServerServiceImpl implements ServerService {
 
     @Override
     public void delete(UUID id, UUID userId) {
+        Optional<Server> serverToDelete = serverRepository.findById(id);
 
+        if (serverToDelete.isEmpty()) {
+            throw new RecordNotFoundException("Server not found");
+        }
+
+        if (!serverToDelete.get().getOwnerId().equals(userId)) {
+            throw new RecordNotFoundException("Server not found");
+        }
+
+        serverToDelete.get().setDeletedAt(Instant.now());
+        serverRepository.delete(serverToDelete.get());
     }
 
     @Override
     public Optional<Server> findByNameAndOwnerId(String name, UUID ownerId) {
         return serverRepository.findByNameAndOwnerId(name, ownerId);
+    }
+
+    @Override
+    public List<Server> findByUserId(UUID userId) {
+        return serverRepository.findByOwnerId(userId);
     }
 }
