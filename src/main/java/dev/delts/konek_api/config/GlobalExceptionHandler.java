@@ -93,7 +93,8 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimeStamp(LocalDateTime.now());
         errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-        errorResponse.setError("Incorrect username or password");
+        errorResponse.setError("Invalid");
+        errorResponse.setMessage("Incorrect username or password");
         errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);

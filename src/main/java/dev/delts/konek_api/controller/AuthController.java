@@ -1,5 +1,6 @@
 package dev.delts.konek_api.controller;
 
+import dev.delts.konek_api.dto.ApiResponse;
 import dev.delts.konek_api.dto.request.auth.LoginRequest;
 import dev.delts.konek_api.dto.auth.LoginResponse;
 import dev.delts.konek_api.dto.request.auth.SignUpRequest;
@@ -24,14 +25,14 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserDtoResponse> register(@Valid @RequestBody SignUpRequest request) {
+    public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody SignUpRequest request) {
         UserDtoResponse userDtoResponse = userService.signUp(request);
-        return new ResponseEntity<>(userDtoResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success("Registered successfully", userDtoResponse), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<?>> login(@RequestBody LoginRequest request) {
         LoginResponse loginResponse = userService.login(request);
-        return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success("Logged-in", loginResponse), HttpStatus.OK);
     }
 }
