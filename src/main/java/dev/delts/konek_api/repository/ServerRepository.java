@@ -12,6 +12,6 @@ import java.util.UUID;
 public interface ServerRepository extends JpaRepository<Server, UUID> {
     Optional<Server> findByNameAndOwnerId(String name, UUID userId);
     Optional<Server> findByIdAndOwnerId(UUID id, UUID userId);
-    List<Server> findByOwnerId(UUID userId);
+    List<Server> findByOwnerIdOrderByCreatedAtDesc(UUID userId);
     List<Server> findByIdIn(List<UUID> ids);
 }

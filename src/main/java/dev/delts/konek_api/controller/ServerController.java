@@ -1,13 +1,18 @@
 package dev.delts.konek_api.controller;
 
 import dev.delts.konek_api.dto.ApiResponse;
+import dev.delts.konek_api.dto.member.MemberResponseDto;
 import dev.delts.konek_api.dto.request.server.ServerCreateRequest;
 import dev.delts.konek_api.dto.request.server.ServerUpdateRequest;
 import dev.delts.konek_api.entity.Server;
 import dev.delts.konek_api.service.AuthService;
+import dev.delts.konek_api.service.MemberService;
 import dev.delts.konek_api.service.ServerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +25,21 @@ public class ServerController {
 
     private final AuthService authService;
     private final ServerService serverService;
+    private final MemberService memberService;
 
-    public ServerController(AuthService authService, ServerService serverService) {
+    public ServerController(AuthService authService, ServerService serverService, MemberService memberService) {
         this.authService = authService;
         this.serverService = serverService;
+        this.memberService = memberService;
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ApiResponse<?>> getServers(@RequestParam(required = false) String query, HttpServletRequest servletRequest) {
+        UUID userId = authService.getUserIdFromRequest(servletRequest);
+
+        List<Server> serverList = serverService.findByUserId(userId);
+
+        return ResponseEntity.ok(ApiResponse.success(serverList));
     }
 
     @PostMapping("/create")
@@ -31,7 +47,7 @@ public class ServerController {
         UUID userId = authService.getUserIdFromRequest(servletRequest);
         Server savedServer = serverService.create(request, userId);
 
-        return ResponseEntity.ok(ApiResponse.success("Server created successfully", savedServer));
+        return new ResponseEntity<>(ApiResponse.success("Server created successfully", savedServer), HttpStatus.CREATED);
     }
 
     @PostMapping("/update")
@@ -50,13 +66,12 @@ public class ServerController {
         return ResponseEntity.ok(ApiResponse.success("Server deleted successfully"));
     }
 
-    @GetMapping("/servers")
-    public ResponseEntity<ApiResponse<?>> getServers(@RequestParam(required = false) String query, HttpServletRequest servletRequest) {
+    @GetMapping("/{serverId}/members")
+    public ResponseEntity<ApiResponse<?>> getMembersByServerId(@PathVariable UUID serverId, HttpServletRequest servletRequest, Pageable pageable) {
         UUID userId = authService.getUserIdFromRequest(servletRequest);
 
-        List<Server> serverList = serverService.findByUserId(userId);
+        Page<MemberResponseDto> memberPage = memberService.getMembers(serverId, userId, pageable);
 
-        return ResponseEntity.ok(ApiResponse.success(serverList));
+        return ResponseEntity.ok(ApiResponse.success(memberPage));
     }
-
 }

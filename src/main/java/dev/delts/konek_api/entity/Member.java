@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
+@Table(name = "members")
 @EnableJpaAuditing
 @EntityListeners(AuditingEntityListener.class)
 public @Data class Member {
@@ -23,6 +24,7 @@ public @Data class Member {
     @Column(nullable = false)
     private UUID serverId;
 
+    @Column(name = "nickname")
     private String nickName;
     private String role;
 

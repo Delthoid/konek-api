@@ -95,6 +95,6 @@ public class ServerServiceImpl implements ServerService {
 
     @Override
     public List<Server> findByUserId(UUID userId) {
-        return serverRepository.findByOwnerId(userId);
+        return serverRepository.findByOwnerIdOrderByCreatedAtDesc(userId);
     }
 }
