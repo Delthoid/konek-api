@@ -2,8 +2,10 @@ package dev.delts.konek_api.controller;
 
 import dev.delts.konek_api.dto.ApiResponse;
 import dev.delts.konek_api.dto.member.MemberResponseDto;
+import dev.delts.konek_api.dto.member.AddMemberRequest;
 import dev.delts.konek_api.dto.request.server.ServerCreateRequest;
 import dev.delts.konek_api.dto.request.server.ServerUpdateRequest;
+import dev.delts.konek_api.entity.Member;
 import dev.delts.konek_api.entity.Server;
 import dev.delts.konek_api.service.AuthService;
 import dev.delts.konek_api.service.MemberService;
@@ -34,7 +36,7 @@ public class ServerController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<ApiResponse<?>> getServers(@RequestParam(required = false) String query, HttpServletRequest servletRequest) {
+    public ResponseEntity<ApiResponse<List<Server>>> getServers(@RequestParam(required = false) String query, HttpServletRequest servletRequest) {
         UUID userId = authService.getUserIdFromRequest(servletRequest);
 
         List<Server> serverList = serverService.findByUserId(userId);
@@ -67,11 +69,23 @@ public class ServerController {
     }
 
     @GetMapping("/{serverId}/members")
-    public ResponseEntity<ApiResponse<?>> getMembersByServerId(@PathVariable UUID serverId, HttpServletRequest servletRequest, Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<MemberResponseDto>>> getMembersByServerId(@PathVariable UUID serverId, HttpServletRequest servletRequest, Pageable pageable) {
         UUID userId = authService.getUserIdFromRequest(servletRequest);
 
         Page<MemberResponseDto> memberPage = memberService.getMembers(serverId, userId, pageable);
 
         return ResponseEntity.ok(ApiResponse.success(memberPage));
+    }
+
+    @PostMapping("/{serverId}/addMember")
+    public ResponseEntity<ApiResponse<Member>> addMemberToServer(
+            @PathVariable UUID serverId,
+            @RequestBody AddMemberRequest addMemberRequest,
+            HttpServletRequest servletRequest
+    ) {
+        UUID userId = authService.getUserIdFromRequest(servletRequest);
+        Member membership = memberService.addMember(addMemberRequest, serverId, userId);
+
+        return ResponseEntity.ok(ApiResponse.success(membership));
     }
 }

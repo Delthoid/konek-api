@@ -24,6 +24,8 @@ public @Data class Member {
     @Column(nullable = false)
     private UUID serverId;
 
+    private UUID addedBy;
+
     @Column(name = "nickname")
     private String nickName;
     private String role;

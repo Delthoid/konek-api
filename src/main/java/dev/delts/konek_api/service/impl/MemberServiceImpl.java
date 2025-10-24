@@ -2,11 +2,14 @@ package dev.delts.konek_api.service.impl;
 
 import dev.delts.konek_api.dto.member.MemberResponseDto;
 import dev.delts.konek_api.dto.member.UserMemberResponseDto;
-import dev.delts.konek_api.dto.request.member.AddMemberRequest;
+import dev.delts.konek_api.dto.member.AddMemberRequest;
 import dev.delts.konek_api.entity.Member;
+import dev.delts.konek_api.entity.Server;
 import dev.delts.konek_api.entity.User;
+import dev.delts.konek_api.exception.RecordAlreadyExistsException;
 import dev.delts.konek_api.exception.RecordNotFoundException;
 import dev.delts.konek_api.repository.MemberRepository;
+import dev.delts.konek_api.repository.ServerRepository;
 import dev.delts.konek_api.repository.UserRepository;
 import dev.delts.konek_api.service.MemberService;
 import org.springframework.data.domain.Page;
@@ -22,24 +25,47 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository repository;
     private final UserRepository userRepository;
+    private final ServerRepository serverRepository;
 
-    public MemberServiceImpl(MemberRepository repository, UserRepository userRepository) {
+    public MemberServiceImpl(MemberRepository repository, UserRepository userRepository, ServerRepository serverRepository) {
         this.repository = repository;
         this.userRepository = userRepository;
+        this.serverRepository = serverRepository;
     }
 
     @Override
-    public Member addMember(AddMemberRequest addMemberRequest) {
+    public Member addMember(AddMemberRequest addMemberRequest, UUID serverId, UUID userId) {
+        // Check first if the current user is a member of the server
+        Optional<Member> membership = repository.findByServerIdAndUserId(serverId, userId);
+
+        if (membership.isEmpty()) {
+            throw new RecordNotFoundException("Server not found.");
+        }
+
+        // Check if the server is active or not deleted
+        Optional<Server> server = serverRepository.findById(serverId);
+        if (server.isEmpty()) {
+            throw new RecordNotFoundException("Server not found");
+        }
+
+        // Check if member request user already a member
+        Optional<Member> existingMembership = repository.findByServerIdAndUserId(serverId, addMemberRequest.getUserId());
+        if (existingMembership.isPresent()) {
+            throw new RecordAlreadyExistsException("User is already a member of this server.");
+        }
+
         Member newMember = new Member();
-        newMember.setServerId(addMemberRequest.getServerId());
+        newMember.setServerId(serverId);
         newMember.setUserId(addMemberRequest.getUserId());
         newMember.setNickName("");
+        newMember.setAddedBy(userId);
 
         return repository.save(newMember);
     }
 
     @Override
     public Page<MemberResponseDto> getMembers(UUID serverId, UUID userId, Pageable pageable) {
+        // Check first if the current user is a member of the server
         Optional<Member> membership = repository.findByServerIdAndUserId(serverId, userId);
 
         if (membership.isEmpty()) {
@@ -81,6 +107,7 @@ public class MemberServiceImpl implements MemberService {
 
                     return new MemberResponseDto(
                             member.getRole(),
+                            member.getNickName(),
                             userDto,
                             member.getCreatedAt()
                     );

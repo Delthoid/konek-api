@@ -10,6 +10,7 @@ import java.time.Instant;
 @AllArgsConstructor
 public @Data class MemberResponseDto {
     private String role;
+    private String nickName;
     private UserMemberResponseDto user;
     private Instant createdAt;
 }
