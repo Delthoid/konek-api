@@ -37,8 +37,8 @@ public class AuthControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(signUpRequest)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.userName").value("testUser1"))
-                .andExpect(jsonPath("$.email").value("test1@mail.com"));
+                .andExpect(jsonPath("$.data.userName").value("testUser1"))
+                .andExpect(jsonPath("$.data.email").value("test1@mail.com"));
     }
 
     @Test
@@ -115,9 +115,9 @@ public class AuthControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userDtoResponse.userName").value("user1"))
-                .andExpect(jsonPath("$.userDtoResponse.email").value("user1@mail.com"))
-                .andExpect(jsonPath("$.token").isNotEmpty());
+                .andExpect(jsonPath("$.data.userDtoResponse.userName").value("user1"))
+                .andExpect(jsonPath("$.data.userDtoResponse.email").value("user1@mail.com"))
+                .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
     @Test
@@ -155,6 +155,6 @@ public class AuthControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest1)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.error").value("Incorrect username or password"));
+                .andExpect(jsonPath("$.message").value("Incorrect username or password"));
     }
 }
